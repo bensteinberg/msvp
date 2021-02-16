@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "msvp"
+version = "0.1.0"
+description = "Minimum sous vide project"
+authors = ["Ben Steinberg <ben@potswift.org>"]
+license = "GPLv3"
+
+[tool.poetry.scripts]
+msvp = "msvp.cli:main"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.1.2"
+simple-pid = "^0.2.4"
+python-dotenv = "^0.15.0"
+adafruit-circuitpython-max31865 = "^2.2.6"
+PyYAML = "^5.4.1"
+Flask = "^1.1.2"
+"RPi.GPIO" = "^0.7.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

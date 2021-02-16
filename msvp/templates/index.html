@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>MSVP</title>
+  </head>
+  <body>
+    <canvas id="msvpChart" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+    <script>
+      var ctx = document.getElementById('msvpChart').getContext('2d');
+      var msvpChart = new Chart(ctx, {
+	  type: 'line',
+	  data: {
+              labels: [],
+              datasets: [{
+		  label: 'probe temperature',
+		  data: [],
+		  backgroundColor: 'rgb(255, 99, 132)',
+		  borderColor: 'rgb(255, 99, 132)',
+		  fill: false,
+              }]
+	  },
+	  options: {
+	      responsive: true,
+              title: {
+                  display: true,
+                  text: 'MSVP: setpoint {{ setpoint }}, kP {{ kp }}, kI {{ ki }}, kD {{ kd }}'
+              },
+              tooltips: {
+                  mode: 'index',
+                  intersect: false,
+              },
+              hover: {
+                  mode: 'nearest',
+                  intersect: true
+              },
+              scales: {
+                  xAxes: [{
+                      display: true,
+		      type: 'time',
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'Time'
+                      }
+                  }],
+                  yAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'degrees Celsius'
+                      }
+                  }]
+	      }
+	  }
+      });
+      const source = new EventSource("/temperature");
+      source.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+          if (msvpChart.data.labels.length === 2000) {
+              msvpChart.data.labels.shift();
+              msvpChart.data.datasets[0].data.shift();
+          }
+          msvpChart.data.labels.push(data.time);
+          msvpChart.data.datasets[0].data.push(data.value);
+          msvpChart.update();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+*~
+.env
+msvp.log*
+__pycache__/
