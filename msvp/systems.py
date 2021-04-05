@@ -75,10 +75,10 @@ class MsvpMockRelay(MsvpSystem):
             self.relay = 'on'
         time.sleep(on_time)
         self.temp += 1 * duty_cycle * dt
+        self.temp -= 0.02 * dt
         if 0.0 < duty_cycle < 1.0:
             self.relay = 'off'
         time.sleep(self.period - on_time)
-        self.temp -= 0.02 * dt
         self.last_relay = self.relay
 
 
