@@ -145,10 +145,12 @@ def web_application(q, setpoint, kp, ki, kd, visible, port):
 
 def sensehat_display(sv, setpoint, goalpost, speed, frequency):
     '''Display current temperature and setpoint on a sensehat matrix'''
+    import atexit
     from sense_hat import SenseHat
     from time import sleep
 
     sense = SenseHat()
+    atexit.register(lambda: sense.clear())
     red = [255, 0, 0]
     green = [0, 255, 0]
     blue = [0, 0, 255]
