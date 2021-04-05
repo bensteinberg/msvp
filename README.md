@@ -19,6 +19,9 @@ Sensor and relay functionality could obviously be different, and if
 this project appears to be generally useful, they may be specified in
 configuration rather than in code.
 
+A [Sensehat](https://www.raspberrypi.org/sense-hat/) for temperature
+display is optional.
+
 Installation
 ------------
 This project uses [poetry](https://python-poetry.org/) to manage
@@ -29,6 +32,17 @@ directory and install the dependencies:
     git clone https://github.com/bensteinberg/msvp.git
     cd msvp
     poetry install
+
+If you have a Sensehat, install the required software like this:
+
+    poetry shell
+    pip install 'git+https://github.com/RPi-Distro/RTIMULib#egg=rtimulib&subdirectory=Linux/python'
+    exit
+
+(Until a packaging correction or the addition of a git subfolder
+mechanism allows RTIMULib to be installed with Poetry, this may be
+required after any subsequent runs of `poetry install`, since
+`--remove-untracked` appears to be the default.)
 
 Usage
 -----
@@ -69,7 +83,6 @@ Possible TODOs
 - Error handling
 - Should `_process` be wrapped in a `Strategy` class? or just be a
   function? Maybe a DRYer function.
-- Display on sensehat, other
 - Testing -- doctests?
 - Build chart.js etc. instead of using CDN?
 - Add or link to a wiring diagram

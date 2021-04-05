@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "msvp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Minimum sous vide project"
 authors = ["Ben Steinberg <ben@potswift.org>"]
 license = "GPLv3"
@@ -17,6 +17,7 @@ adafruit-circuitpython-max31865 = "^2.2.6"
 PyYAML = "^5.4.1"
 Flask = "^1.1.2"
 "RPi.GPIO" = "^0.7.0"
+sense-hat = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

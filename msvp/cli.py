@@ -46,8 +46,13 @@ load_dotenv(dotenv_path=base_dir / '.env')
               help='Serve temperature chart on the network')
 @click.option('--port/', type=int, default=5000,
               help='Port on which to serve temperature chart')
+@click.option('--sensehat/--no-sensehat', default=False,
+              help='Enable display on sensehat matrix')
+@click.option('--goalpost', default=0.2,
+              help='Acceptable distance from setpoint')
+@click.version_option()
 def main(system, setpoint, kp, ki, kd, period, sensor_pin, relay_pin,
-         logconfig, visible, port):
+         logconfig, visible, port, sensehat, goalpost):
     '''MSVP is the Minimum Sous Vide Project or Product'''
     with open(base_dir / logconfig) as f:
         logging.config.dictConfig(yaml.safe_load(f.read()))
@@ -76,6 +81,15 @@ def main(system, setpoint, kp, ki, kd, period, sensor_pin, relay_pin,
                               args=(q, setpoint, kp, ki, kd, visible, port))
     thread.setDaemon(True)
     thread.start()
+
+    if sensehat:
+        try:
+            display_thread = threading.Thread(target=sensehat_display,
+                                              args=(sv, setpoint, goalpost))
+            display_thread.setDaemon(True)
+            display_thread.start()
+        except ImportError:
+            logger.warn('The sense-hat package is not installed.')
 
     logger.info(f'startup -- setpoint {setpoint}, tuning is {kp}, {ki}, {kd}')
 
@@ -122,3 +136,24 @@ def web_application(q, setpoint, kp, ki, kd, visible, port):
                                kp=kp, ki=ki, kd=kd)
 
     app.run(host='0.0.0.0' if visible else '127.0.0.1', port=port)
+
+
+def sensehat_display(sv, setpoint, goalpost):
+    '''Display current temperature and setpoint on a sensehat matrix'''
+    from sense_hat import SenseHat
+    from time import sleep
+
+    sense = SenseHat()
+    red = [255, 0, 0]
+    green = [0, 255, 0]
+    blue = [0, 0, 255]
+    while True:
+        temp = sv.temperature()
+        if abs(temp - setpoint) < goalpost:
+            color = green
+        elif temp < setpoint:
+            color = blue
+        elif temp > setpoint:
+            color = red
+        sense.show_message(f'{round(temp, 2)}', text_colour=color)
+        sleep(5)
