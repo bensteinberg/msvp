@@ -50,9 +50,13 @@ load_dotenv(dotenv_path=base_dir / '.env')
               help='Enable display on sensehat matrix')
 @click.option('--goalpost', default=0.2,
               help='Acceptable distance from setpoint')
+@click.option('--speed', default=0.1, show_default=True,
+              help='Scroll speed for Sensehat display, in seconds per column')
+@click.option('--frequency', default=5,
+              help='Scroll frequency for Sensehat display, in seconds')
 @click.version_option()
 def main(system, setpoint, kp, ki, kd, period, sensor_pin, relay_pin,
-         logconfig, visible, port, sensehat, goalpost):
+         logconfig, visible, port, sensehat, goalpost, speed, frequency):
     '''MSVP is the Minimum Sous Vide Project or Product'''
     with open(base_dir / logconfig) as f:
         logging.config.dictConfig(yaml.safe_load(f.read()))
@@ -85,7 +89,8 @@ def main(system, setpoint, kp, ki, kd, period, sensor_pin, relay_pin,
     if sensehat:
         try:
             display_thread = threading.Thread(target=sensehat_display,
-                                              args=(sv, setpoint, goalpost))
+                                              args=(sv, setpoint, goalpost,
+                                                    speed, frequency))
             display_thread.setDaemon(True)
             display_thread.start()
         except ImportError:
@@ -138,7 +143,7 @@ def web_application(q, setpoint, kp, ki, kd, visible, port):
     app.run(host='0.0.0.0' if visible else '127.0.0.1', port=port)
 
 
-def sensehat_display(sv, setpoint, goalpost):
+def sensehat_display(sv, setpoint, goalpost, speed, frequency):
     '''Display current temperature and setpoint on a sensehat matrix'''
     from sense_hat import SenseHat
     from time import sleep
@@ -155,5 +160,6 @@ def sensehat_display(sv, setpoint, goalpost):
             color = blue
         elif temp > setpoint:
             color = red
-        sense.show_message(f'{round(temp, 2)}', text_colour=color)
-        sleep(5)
+        sense.show_message(f'{round(temp, 2)}', text_colour=color,
+                           scroll_speed=speed)
+        sleep(frequency)

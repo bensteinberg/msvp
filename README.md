@@ -61,6 +61,11 @@ A dynamic graph of the current temperature can be seen at
 http://127.0.0.1:5000/ or, if you use the option `--visible`, whatever
 IP address your Pi has. You can change the port with `--port`.
 
+Use `--sensehat` to display the temperature, at `--speed` seconds per
+column, every `--frequency` seconds. A green display, to indicate
+arrival at setpoint, is when the temperature is less than one
+`--goalpost` away.
+
 Tuning
 ------
 Presently, there is no method for auto-tuning this system.
