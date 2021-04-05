@@ -62,7 +62,7 @@ class MsvpMockRelay(MsvpSystem):
     """
     def __init__(self, period, **kwargs):
         super().__init__(period, **kwargs)
-        self.relay = self.last_relay = 'off'
+        self.relay = 'off'
 
     def temperature(self):
         return self.temp
@@ -70,8 +70,7 @@ class MsvpMockRelay(MsvpSystem):
     def _process(self, value, dt):
         duty_cycle = value / 100.0
         on_time = duty_cycle * self.period
-        # maybe use last_duty_cycle
-        if duty_cycle > 0.0 and self.last_relay == 'off':
+        if duty_cycle > 0.0 and self.relay == 'off':
             self.relay = 'on'
         time.sleep(on_time)
         self.temp += 1 * duty_cycle * dt
@@ -79,7 +78,6 @@ class MsvpMockRelay(MsvpSystem):
         if 0.0 < duty_cycle < 1.0:
             self.relay = 'off'
         time.sleep(self.period - on_time)
-        self.last_relay = self.relay
 
 
 class MsvpRtdRelay(MsvpSystem):
@@ -87,13 +85,14 @@ class MsvpRtdRelay(MsvpSystem):
     def __init__(self, period, **kwargs):
         super().__init__(period, **kwargs)
         self.sensor = self._initialize_hardware()
+        self.state = 'off'
 
     def _process(self, value, dt):
         duty_cycle = value / 100.0
         on_time = duty_cycle * self.period
-        if duty_cycle > 0.0:
+        if duty_cycle > 0.0 and self.state == 'off':
             self.relay('on')
-            time.sleep(on_time)
+        time.sleep(on_time)
         if 0.0 < duty_cycle < 1.0:
             self.relay('off')
         time.sleep(self.period - on_time)
@@ -118,6 +117,7 @@ class MsvpRtdRelay(MsvpSystem):
     def relay(self, state):
         '''Turn relay on or off'''
         GPIO.output(self.relay_pin, True if state == 'on' else False)
+        self.state = state
 
     def _shutdown(self):
         '''Turn relay off'''
